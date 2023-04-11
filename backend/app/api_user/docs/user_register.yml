@@ -1,0 +1,25 @@
+Register.
+---
+tags:
+  - User
+consumes:
+    - multipart/form-data
+parameters:
+    - in: formData
+      name: username
+      type: string
+      require: true
+      description: username.
+    - in: formData
+      name: password
+      type: string
+      require: true
+      description: password.
+    - in: formData
+      name: email
+      type: string
+      require: true
+      description: email.
+responses:
+  200:
+    description: User register successful!
