@@ -6,7 +6,7 @@ from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 
-# User和Role的关联表
+# User and Role related table
 roles_users = db.Table('roles_users',
                        db.Column('user_id', db.Integer(),
                                  db.ForeignKey('users.id')),
@@ -17,8 +17,8 @@ roles_users = db.Table('roles_users',
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(80), unique=True)  # 角色名称
-    description = db.Column(db.String(255))  # 角色描述
+    name = db.Column(db.String(80), unique=True)  # role name
+    description = db.Column(db.String(255))
 
     def __repr__(self):
         return '<Role %r>' % self.name
@@ -36,10 +36,10 @@ class User(db.Model):
         backref=db.backref('users', lazy='dynamic'))
 
     regist_time = db.Column(
-        db.DateTime, nullable=False, default=dt.datetime.utcnow)  # 注册时间
-    last_login_time = db.Column(db.DateTime)  # 上次登录时间
-    last_login_ip = db.Column(db.String(32), nullable=True)  # 上次登录IP
-    current_login_ip = db.Column(db.String(32), nullable=True)  # 当前登录IP
+        db.DateTime, nullable=False, default=dt.datetime.utcnow)
+    last_login_time = db.Column(db.DateTime)
+    last_login_ip = db.Column(db.String(32), nullable=True)
+    current_login_ip = db.Column(db.String(32), nullable=True)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -53,14 +53,14 @@ class User(db.Model):
         self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
-        """验证密码"""
+        """validate pass"""
         return check_password_hash(self.password_hash, password)
 
     def generate_confirmation_token(self, expiration=3600):
-        """生成token"""
+        """generate token"""
         s = Serializer(current_app.config["SECRET_KEY"], expiration)
 
-        # 把 id、username、roles 放进 token
+        # put info into a token
         token = s.dumps({
             "id": self.id,
             "username": self.username,
@@ -70,7 +70,7 @@ class User(db.Model):
 
     @staticmethod
     def confirm(token):
-        """验证token"""
+        """valid token"""
         s = Serializer(current_app.config["SECRET_KEY"])
         try:
             data = s.loads(token)

@@ -11,7 +11,7 @@ from . import api_user
 
 class UserLoginAPI(MethodView):
     """
-    用户登录 API
+    login API
     """
 
     @confirm_key(["username", "password"])
@@ -47,7 +47,7 @@ class UserLoginAPI(MethodView):
 
 class UserLogoutAPI(MethodView):
     """
-    用户登出 API
+    logout API
     """
 
     def get(self):
@@ -73,7 +73,7 @@ class UserLogoutAPI(MethodView):
 
 class UserConfirmTokenAPI(MethodView):
     """
-    验证Token API
+    Validate Token API
     """
 
     def get(self):
@@ -97,7 +97,7 @@ class UserConfirmTokenAPI(MethodView):
 
 class UserInfoAPI(MethodView):
     """
-    用户信息 API
+    USER info API
     """
 
     @confirm_token()
@@ -132,7 +132,7 @@ class UserInfoAPI(MethodView):
 
 class UserChangePasswordAPI(MethodView):
     """
-    修改用户密码 API
+    Change password API
     """
 
     @confirm_key(["token", "password", "newpassword"])
@@ -152,7 +152,7 @@ class UserChangePasswordAPI(MethodView):
         password = request.values.get("password")
         newpassword = request.values.get("newpassword")
 
-        token_data = User.confirm(token)  # 顺便验证Token
+        token_data = User.confirm(token)  # valid Token
         if token_data:
             user_id = token_data.get("id")
             user = User.query.get(user_id)
@@ -173,7 +173,7 @@ class UserChangePasswordAPI(MethodView):
 
 class UserListAPI(MethodView):
     """
-    分页获取所有用户信息 API
+    get user info by page API
     """
 
     @confirm_token(["admin"])
@@ -193,7 +193,7 @@ class UserListAPI(MethodView):
         number = request.values.get("number") or 20
 
         # print(page, number)
-        users_page = User.query.paginate(int(page), int(number))    # 如果找不到会抛出404异常
+        users_page = User.query.paginate(int(page), int(number))
 
         user_lst = []
         if users_page:
@@ -214,7 +214,7 @@ class UserListAPI(MethodView):
 
 class UserRegisterAPI(MethodView):
     """
-    register
+    register API
     """
 
     @staticmethod
