@@ -12,7 +12,8 @@ db = SQLAlchemy()
 
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
 # Our API url (can of course be a local resource)
-API_URL = 'http://127.0.0.1:5000/spec'
+# API_URL = 'http://127.0.0.1:5000/spec'
+API_URL = 'http://192.168.18.2:5000/spec'
 
 # Call factory function to create our blueprint
 swaggerui_blueprint = get_swaggerui_blueprint(

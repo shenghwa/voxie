@@ -2,7 +2,7 @@
 # coding=utf-8
 
 from app import db
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, session
 from flask.views import MethodView
 from .models import User, Role
 from .utils import confirm_token, confirm_key, Status
@@ -35,6 +35,7 @@ class UserLoginAPI(MethodView):
             ret = user.verify_password(password)
             if ret:
                 token = user.generate_confirmation_token()
+                session['token'] = token
                 ret_json.update({"data": {"token": token}})
                 return jsonify(ret_json)
 
@@ -62,6 +63,7 @@ class UserLogoutAPI(MethodView):
         User logout.
         swagger_from_file: app/api_user/docs/user_logout.yml
         """
+        session.pop('token', None)
         ret_json = {
             "status": Status.SUCCESS.status,
             "message": "logout!",

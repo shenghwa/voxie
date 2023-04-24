@@ -2,7 +2,7 @@
 # coding=utf-8
 
 from app import db
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, session
 from flask.views import MethodView
 from ..api_user.models import User
 from .models import Record
@@ -26,7 +26,7 @@ class RecordStoreAPI(MethodView):
             "data": {}
         }
 
-        token = request.values.get('token')
+        token = session.get('token')
         user_id = User.confirm(token).get('id')
         content = request.values.get('content')
 

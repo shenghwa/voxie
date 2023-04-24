@@ -1,0 +1,15 @@
+Register.
+---
+tags:
+  - Record
+consumes:
+    - multipart/form-data
+parameters:
+    - in: formData
+      name: content
+      type: string
+      require: True
+      description: content.
+responses:
+  200:
+    description: Add record successfully
