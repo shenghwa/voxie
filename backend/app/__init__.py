@@ -47,7 +47,9 @@ def create_app(config_name):
     # 注册蓝本
     # 增加 api 蓝本
     from app.api_user import api_user
+    from app.api_record import api_record
     app.register_blueprint(api_user, url_prefix='/api/user')
+    app.register_blueprint(api_record, url_prefix='/api/record')
 
     # 附加路由和自定义的错误页面
 

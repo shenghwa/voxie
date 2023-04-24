@@ -8,6 +8,7 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell, Server
 from flask_script.commands import Clean, ShowUrls
 from app import create_app, db
+from app.api_record.models import Record
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)

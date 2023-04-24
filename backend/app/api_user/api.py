@@ -115,11 +115,14 @@ class UserInfoAPI(MethodView):
 
         token = request.values.get("token")
         if token:
-            token_data = User.confirm(token)  # 顺便验证Token
+            token_data = User.confirm(token)
+            user_id = token_data.get('id')
             username = token_data.get("username")
+            roles = token_data.get("roles")
             ret_json["data"].update({
-                "username": token_data.get("username"),
-                "roles": token_data.get("roles")
+                'id': user_id,
+                "username": username,
+                "roles": roles
             })
             return jsonify(ret_json)
 

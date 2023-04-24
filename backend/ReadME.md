@@ -33,11 +33,11 @@
     - itsdangerous==0.24
     - 其它依赖参见requirements.txt
 
-# 配置过程
+# Config
 
-## 开发环境的配置
+## development Config
 
-1. 新建Python虚拟环境并安装依赖包
+1. create Python enviroment 并安装依赖包
 
 Windows PowerShell：
 
