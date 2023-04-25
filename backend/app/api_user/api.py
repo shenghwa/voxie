@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
+import json
 
 from app import db
 from flask import request, jsonify, current_app, session
@@ -14,23 +15,23 @@ class UserLoginAPI(MethodView):
     login API
     """
 
-    @confirm_key(["username", "password"])
+    @confirm_key(["email", "password"])
     def post(self):
         """
         User login.
         swagger_from_file: app/api_user/docs/user_login.yml
         """
         ret_json = {
-            "status": Status.SUCCESS.status,
+            "status": 200,
             "message": "login success!",
             "request": request.base_url,
             "data": {
                 "token": "",
             }
         }
-        username = request.values.get("username")
+        email = request.values.get("email")
         password = request.values.get("password")
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(email=email).first()
         if user and password:
             ret = user.verify_password(password)
             if ret:
@@ -40,7 +41,7 @@ class UserLoginAPI(MethodView):
                 return jsonify(ret_json)
 
         ret_json.update({
-            "status": Status.FAIL.status,
+            "status": 500,
             "message": "login fail!"
         })
         return jsonify(ret_json)
@@ -65,8 +66,8 @@ class UserLogoutAPI(MethodView):
         """
         session.pop('token', None)
         ret_json = {
-            "status": Status.SUCCESS.status,
-            "message": "logout!",
+            "status": 200,
+            "message": "Logout!",
             "request": request.base_url,
             "data": {}
         }
@@ -89,7 +90,7 @@ class UserConfirmTokenAPI(MethodView):
         """
 
         ret_json = {
-            "status": Status.SUCCESS.status,
+            "status": 200,
             "message": Status.SUCCESS.message,
             "request": request.base_url,
             "data": {}
@@ -102,20 +103,19 @@ class UserInfoAPI(MethodView):
     USER info API
     """
 
-    @confirm_token()
     def get(self):
         """
         获取用户信息
         swagger_from_file: app/api_user/docs/user_get_info.yml
         """
         ret_json = {
-            "status": Status.SUCCESS.status,
+            "status": 200,
             "message": Status.SUCCESS.message,
             "request": request.base_url,
             "data": {}
         }
 
-        token = request.values.get("token")
+        token = session.get("token")
         if token:
             token_data = User.confirm(token)
             user_id = token_data.get('id')
@@ -129,8 +129,8 @@ class UserInfoAPI(MethodView):
             return jsonify(ret_json)
 
         ret_json.update({
-            "status": Status.FAIL.status,
-            "message": "Get user informations fail!"
+            "status": 500,
+            "message": "Get user information fail!"
         })
         return jsonify(ret_json)
 
@@ -140,7 +140,7 @@ class UserChangePasswordAPI(MethodView):
     Change password API
     """
 
-    @confirm_key(["token", "password", "newpassword"])
+    @confirm_key(["password", "new_password"])
     # @confirm_token
     def post(self):
         """
@@ -148,14 +148,14 @@ class UserChangePasswordAPI(MethodView):
         swagger_from_file: app/api_user/docs/user_change_password.yml
         """
         ret_json = {
-            "status": Status.SUCCESS.status,
+            "status": 201,
             "message": "change password successful!",
             "request": request.base_url,
             "data": {}
         }
-        token = request.values.get("token")
+        token = session.get("token")
         password = request.values.get("password")
-        newpassword = request.values.get("newpassword")
+        new_password = request.values.get("new_password")
 
         token_data = User.confirm(token)  # valid Token
         if token_data:
@@ -164,13 +164,13 @@ class UserChangePasswordAPI(MethodView):
             if user and password:
                 ret = user.verify_password(password)
                 if ret:
-                    user.password = newpassword
+                    user.password = new_password
                     db.session.add(user)
                     db.session.commit()
                     return jsonify(ret_json)
 
         ret_json.update({
-            "status": Status.FAIL.status,
+            "status": 500,
             "message": "change password fail!"
         })
         return jsonify(ret_json)
@@ -181,14 +181,14 @@ class UserListAPI(MethodView):
     get user info by page API
     """
 
-    @confirm_token(["admin"])
+    # @confirm_token(["admin"])
     def get(self):
         """
         Get User List.
         swagger_from_file: app/api_user/docs/user_get_list.yml
         """
         ret_json = {
-            "status": Status.SUCCESS.status,
+            "status": 200,
             "message": Status.SUCCESS.message,
             "request": request.base_url,
             "data": {}
@@ -197,7 +197,6 @@ class UserListAPI(MethodView):
         page = request.values.get("page") or 1
         number = request.values.get("number") or 20
 
-        # print(page, number)
         users_page = User.query.paginate(int(page), int(number))
 
         user_lst = []
@@ -245,7 +244,7 @@ class UserRegisterAPI(MethodView):
         swagger_from_file: app/api_user/docs/user_register.yml
         """
         ret_json = {
-            "status": Status.SUCCESS.status,
+            "status": 201,
             "message": "Register Successful!",
             "request": request.base_url,
             "data": {}
@@ -267,11 +266,24 @@ class UserRegisterAPI(MethodView):
             return jsonify(ret_json)
         except:
             ret_json.update({
-                "status": Status.FAIL.status,
-                "message": "change password fail!"
+                "status": 500,
+                "message": 'Fail to create the user! The user might exist!'
             })
             db.session.rollback()
             return jsonify(ret_json)
+
+
+class ReturnTokenAPI(MethodView):
+    """
+        Return Token API
+    """
+
+    def get(self):
+        """
+            return the token
+            swagger_from_file: app/api_user/docs/user_token.yml
+        """
+        return session['token']
 
 
 api_user.add_url_rule('/login', view_func=UserLoginAPI.as_view('login'))
@@ -285,3 +297,4 @@ api_user.add_url_rule(
     '/change_password', view_func=UserChangePasswordAPI.as_view('change_password'))
 api_user.add_url_rule(
     '/list', view_func=UserListAPI.as_view('user_list'))
+api_user.add_url_rule('/token', view_func=ReturnTokenAPI.as_view('token'))

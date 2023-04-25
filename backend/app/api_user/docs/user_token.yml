@@ -1,0 +1,9 @@
+Get user's token.
+---
+tags:
+  - User
+
+responses:
+  200:
+    description: Get token successful!
+    

@@ -10,11 +10,13 @@ parameters:
       type: string
       require: True
       description: token.
-    - in: formData
-      name: content
-      type: string
+    - in: query
+      name: record_id
+      type: int
       require: True
-      description: content.
+      description: record_id.
 responses:
   200:
-    description: Add record successfully
+    description: Delete that record successfully
+  500:
+    description: Fail to delete that record

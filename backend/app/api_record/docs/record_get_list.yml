@@ -1,8 +1,15 @@
-Get User List.
+Get Records List.
 ---
 tags:
-  - User
+  - Record
+consumes:
+  - multipart/form-data
 parameters:
+    - in: query
+      name: token
+      type: string
+      require: True
+      description: token.
     - in: query
       name: page
       type: string
@@ -15,5 +22,5 @@ parameters:
       description: the number of page.
 responses:
   200:
-    description: Get user list successful!
+    description: Get records list successful!
     

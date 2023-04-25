@@ -6,11 +6,11 @@ consumes:
     - multipart/form-data
 parameters:
     - in: formData
-      name: username
+      name: email
       type: string
       required: true
-      default: admin
-      description: User username
+      default: admin@test.com
+      description: User email
     - in: formData
       name: password
       type: string
