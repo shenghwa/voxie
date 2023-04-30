@@ -1,0 +1,9 @@
+Get recommended questions.
+---
+tags:
+  - Record
+
+responses:
+  200:
+    description: Get recommended questions successful!
+    
