@@ -142,9 +142,8 @@ class RecordRecommendAPI(MethodView):
             r = random.randint(0, len_records - 1)
             if r not in recommended_index:
                 recommended_index.append(r)
-        recommended_list = [recommended_records[i].content.split('\n')[0] for i in recommended_index]
+        recommended_list = [recommended_records[i].content.split('\n')[0][6:] for i in recommended_index]
         ret_json.update({'data': {'recommend_questions': recommended_list}})
-        print(ret_json)
 
         return jsonify(ret_json)
 
