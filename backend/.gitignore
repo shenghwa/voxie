@@ -1,5 +1,4 @@
-./vscode/
-.idea/
+idea/
 
 # Python
 *.py[cod]
@@ -11,7 +10,7 @@ build/
 __pycache__/
 
 # pyvenv
-./venv/
+venv/
 
 *.tar
 *.tar.gz
