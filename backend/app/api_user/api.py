@@ -223,18 +223,20 @@ class UserRegisterAPI(MethodView):
 
     @staticmethod
     def create_role(name='normal'):
-        """create Role"""
+        """
+        Create Role
+        """
 
         # check if the role exists
-        normal = Role.query.filter_by(name=name).first()
+        role = Role.query.filter_by(name=name).first()
         # if not then create
-        if not normal:
-            normal = Role()
-            normal.name = name
-            db.session.add(normal)
+        if not role:
+            role = Role()
+            role.name = name
+            db.session.add(role)
             db.session.commit()
             print("The '%s' role is created!" % name)
-        return normal
+        return role
 
 
     @confirm_key(["username", "password", "email"])
@@ -275,15 +277,47 @@ class UserRegisterAPI(MethodView):
 
 class ReturnTokenAPI(MethodView):
     """
-        Return Token API
+    Return Token API
     """
 
     def get(self):
         """
-            return the token
-            swagger_from_file: app/api_user/docs/user_token.yml
+        return the token
+        swagger_from_file: app/api_user/docs/user_token.yml
         """
         return session['token']
+
+
+class UpgradeRole(MethodView):
+    """
+    Upgrade Role API
+    """
+
+    def post(self):
+        """
+        Upgrade this user's role from normal to vip
+        swagger_from_file: app/api_user/docs/upgrade_role.yml
+        """
+        ret_json = {
+            "status": 201,
+            "message": "Upgrade the role Successful!",
+            "request": request.base_url,
+            "data": {}
+        }
+        vip = UserRegisterAPI.create_role('vip')
+        token = session.get("token")
+
+        token_data = User.confirm(token)  # valid Token
+        if token_data:
+            user_id = token_data.get("id")
+            if user_id:
+                user = User.query.get(user_id)
+                user.roles.append(vip)
+                db.session.commit()
+                return jsonify(ret_json)
+        else:
+            ret_json.update({'status': 500,
+                             'message': 'Fail to upgrade this user\'s role'})
 
 
 api_user.add_url_rule('/login', view_func=UserLoginAPI.as_view('login'))
@@ -298,3 +332,4 @@ api_user.add_url_rule(
 api_user.add_url_rule(
     '/list', view_func=UserListAPI.as_view('user_list'))
 api_user.add_url_rule('/token', view_func=ReturnTokenAPI.as_view('token'))
+api_user.add_url_rule('/upgrade_role', view_func=UpgradeRole.as_view('/upgrade_role'))

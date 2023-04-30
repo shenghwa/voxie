@@ -1,0 +1,9 @@
+Upgrade user's role.
+---
+tags:
+  - User
+
+responses:
+  200:
+    description: Upgrade user's role successfully!
+    

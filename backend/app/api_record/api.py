@@ -3,7 +3,7 @@
 import random
 
 from app import db
-from flask import request, jsonify, current_app, session
+from flask import request, jsonify, current_app
 from flask.views import MethodView
 from ..api_user.models import User
 from .models import Record
