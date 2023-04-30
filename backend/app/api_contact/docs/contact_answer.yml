@@ -1,0 +1,14 @@
+Get contact answers.
+---
+tags:
+  - Contact
+parameters:
+    - in: query
+      name: question_index
+      type: int
+      require: True
+      description: question_index
+responses:
+  200:
+    description: Get the answer successful!
+    
