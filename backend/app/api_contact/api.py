@@ -45,8 +45,9 @@ class ContactAnswerAPI(MethodView):
             ret_json.update({'data': {'answer': 'You can only sign up once with one email address due to the '
                                                 'limitation'}})  # question4: Precautions for registration
         else:
-            ret_json.update({'data': {'answer': 'I can\'t understand your question at the moment, please contact the '
-                                                'human service'}})
+            ret_json.update({'data': {'answer': 'I can\'t understand your question at the moment, I\'ll write it down '
+                                                'and report back. If you are in hurry, please contact the human '
+                                                'service'}})
 
         return jsonify(ret_json)
 
