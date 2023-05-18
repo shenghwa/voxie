@@ -1,4 +1,4 @@
-Upgrade user's role.
+Get user's left times today.
 ---
 tags:
   - User
@@ -6,9 +6,10 @@ parameters:
     - in: query
       name: token
       type: string
-      require: true
+      required: True
       description: Token
+
 responses:
   200:
-    description: Upgrade user's role successfully!
+    description: Get user information successful!
     

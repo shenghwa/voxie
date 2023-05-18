@@ -40,6 +40,8 @@ class User(db.Model):
     last_login_time = db.Column(db.DateTime)
     last_login_ip = db.Column(db.String(32), nullable=True)
     current_login_ip = db.Column(db.String(32), nullable=True)
+    left_times = db.Column(db.Integer, default=15)
+    last_update_time = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<User %r>' % self.username

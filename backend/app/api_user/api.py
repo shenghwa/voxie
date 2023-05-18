@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-import json
+import datetime as dt
 
 from app import db
 from flask import request, jsonify, current_app, session
@@ -8,6 +8,85 @@ from flask.views import MethodView
 from .models import User, Role
 from .utils import confirm_token, confirm_key, Status
 from . import api_user
+
+
+def check_role(token):
+    ret_data = {'vip': False, 'user_id': None}
+    if token:
+        token_data = User.confirm(token)
+        user_id = token_data.get('id')
+        roles = token_data.get("roles")
+        if 'vip' in roles:
+            ret_data['vip'] = True
+        ret_data['user_id'] = user_id
+        return ret_data
+    else:
+        return ret_data
+
+
+class UserUsingLimitationAPI(MethodView):
+    """
+    Limit each user's using times every day
+    """
+
+    def get(self):
+        """
+        Get the left times
+        swagger_from_file: app/api_user/docs/user_left_times.yml
+        """
+        ret_json = {
+            "status": 200,
+            "message": "Get information successfully",
+            "request": request.base_url,
+            "data": {
+                'vip': False, 'left_times': None
+            }
+        }
+        token = request.values.get('token')
+        data = check_role(token)
+        vip = data['vip']
+        user_id = data['user_id']
+        if vip:
+            ret_json['data']['vip'] = True
+        else:
+            user = User.query.get(user_id)
+            ret_json['data']['left_times'] = user.left_times
+        return jsonify(ret_json)
+
+    def put(self):
+        """
+        Subtract left times
+        swagger_from_file: app/api_user/docs/user_left_times.yml
+        """
+        ret_json = {
+            "status": 200,
+            "message": "Get information successfully",
+            "request": request.base_url,
+            "data": {
+                'left_times': 0
+            }
+        }
+        token = request.values.get('token')
+        token_data = User.confirm(token)
+        user_id = token_data.get('id')
+        user = User.query.get(user_id)
+        left_times = user.left_times
+
+        try:
+            if left_times > 0:
+                user.left_times = left_times - 1
+                user.last_update_time = dt.datetime.utcnow()
+                ret_json['data']['left_times'] = left_times - 1
+
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            ret_json["status"] = 500
+            ret_json["message"] = "Failed to load information"
+
+        return jsonify(ret_json)
 
 
 class UserLoginAPI(MethodView):
@@ -37,6 +116,11 @@ class UserLoginAPI(MethodView):
             if ret:
                 token = user.generate_confirmation_token()
                 session['token'] = token
+                current_time = dt.datetime.utcnow()
+                if user.last_update_time is None or (current_time - user.last_update_time).total_seconds() >= 24*60*60:
+                    user.left_times = 15
+                    db.session.add(user)
+                    db.session.commit()
                 ret_json.update({"data": {"token": token}})
                 return jsonify(ret_json)
 
@@ -238,7 +322,6 @@ class UserRegisterAPI(MethodView):
             print("The '%s' role is created!" % name)
         return role
 
-
     @confirm_key(["username", "password", "email"])
     def post(self):
         """
@@ -305,7 +388,7 @@ class UpgradeRole(MethodView):
             "data": {}
         }
         vip = UserRegisterAPI.create_role('vip')
-        token = session.get("token")
+        token = request.values.get('token')
 
         token_data = User.confirm(token)  # valid Token
         if token_data:
@@ -318,6 +401,7 @@ class UpgradeRole(MethodView):
         else:
             ret_json.update({'status': 500,
                              'message': 'Fail to upgrade this user\'s role'})
+            return jsonify(ret_json)
 
 
 api_user.add_url_rule('/login', view_func=UserLoginAPI.as_view('login'))
@@ -333,3 +417,4 @@ api_user.add_url_rule(
     '/list', view_func=UserListAPI.as_view('user_list'))
 api_user.add_url_rule('/token', view_func=ReturnTokenAPI.as_view('token'))
 api_user.add_url_rule('/upgrade_role', view_func=UpgradeRole.as_view('/upgrade_role'))
+api_user.add_url_rule('/limitation', view_func=UserUsingLimitationAPI.as_view('/limitation'))
