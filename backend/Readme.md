@@ -1,9 +1,6 @@
-# Voxie
+# Voxie Backend
 
 A smart voice assistant online.
-
-- Front end
-- Back end
 
 Address of Swagger API: http://127.0.0.1:5000/api/docs/
 
