@@ -1,8 +1,8 @@
 # Configuration
 
-Vue 3.0\n
-vue-i18n\n
-vue-router\n
+Vue 3.0  
+vue-i18n  
+vue-router
 
 # Installation
 
