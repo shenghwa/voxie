@@ -16,4 +16,6 @@ npm install vue-i18n
 
 # Run the Vue framework
 
+```
 npm run server
+```
