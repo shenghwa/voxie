@@ -6,8 +6,13 @@ vue-router
 
 # Installation
 
+```
 npm install vue-router
+```
+
+```
 npm install vue-i18n
+```
 
 # Run the Vue framework
 
